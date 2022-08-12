@@ -1,0 +1,15 @@
+paths:
+    log: "runs"
+    train_data: "/media/achraf/data/workspace/crns/optimendoscopy/triplets/seq1"
+params:
+        model: "HardNet128"
+        # for the moment loss_layer could be either "HardNetLoss" of "AdaptativeTripletLoss"
+        loss_layer: "HardNetLoss"
+        nb_epoch: 300
+        lr: 5e-5
+        batch_size: 128
+        image_size: 128
+        margin_value: 1
+        loss_weight: 0.5
+        momentum: 0.9
+        weight_decay: 1e-4

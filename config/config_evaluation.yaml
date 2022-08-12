@@ -1,0 +1,10 @@
+paths:
+    log: "runs"
+    validation_data: "/home/achraf/workspace/crns/gitprojects/optimendoscopy/data/testing_dataset/frame_sequences"
+params:
+        model_name: "HardNet128"
+        weights_path: "/home/achraf/workspace/crns/gitprojects/optimendoscopy/models/HardNet128.pth"
+        image_size: 128
+        patch_size: 64
+        matching_threshold: 0.5
+        distance_matching_threshold: 5

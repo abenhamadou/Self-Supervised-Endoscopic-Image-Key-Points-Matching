@@ -1,0 +1,10 @@
+.idea
+.git
+outputs/*
+runs/*
+models/*
+!models/.gitkeep
+venv
+data/*
+!data/.gitkeep
+__pycache__

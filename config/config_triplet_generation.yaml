@@ -1,0 +1,15 @@
+paths:
+    raw_data_dirs: ["/media/achraf/data/workspace/crns/optimendoscopy/seq1",
+                   "/media/achraf/data/workspace/crns/optimendoscopy/seq2",
+                   "/media/achraf/data/workspace/crns/optimendoscopy/seq3",
+                   "/media/achraf/data/workspace/crns/optimendoscopy/seq4"]
+    export_dir: "/media/achraf/data/workspace/crns/optimendoscopy/triplets"
+params:
+    keypoint_extractor: "SIFT"
+    # distance in pixel
+    keypoint_dist_threshold: 3
+    patch_size: 64
+    transformation_list: ['zoom', 'rotation', 'translation']
+    predefined_angle_degrees: [5, 10, 15]
+    predefined_zoom_factors: [0.9, 0.95, 1.05, 1.1, 1.15]
+    predefined_translation_pixels: [8]
