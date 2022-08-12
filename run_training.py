@@ -4,33 +4,35 @@ from _version import __version__
 import hydra
 import json
 from omegaconf import OmegaConf
+import warnings
 
 import statistics
 import torch
 import torch.optim as optim
-import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
 from src.models.hardnet_model import HardNet128
 from src.datasets.train_triplet_loader import TripletDataset
 from src.losses.triplet_loss_layers import loss_factory
+from src.utils.path import get_cwd
 
 
 writer = SummaryWriter()
 logger = logging.getLogger("Training")
 logger.setLevel(logging.INFO)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+warnings.filterwarnings("ignore")
 
 @hydra.main(version_base=None, config_path="config", config_name="config_train")
 def main(cfg):
+
     logger.info("Version: " + __version__)
     dict_cfg = OmegaConf.to_container(cfg)
     cfg_pprint = json.dumps(dict_cfg, indent=4)
     logger.info(cfg_pprint)
 
-    root_folder = os.path.abspath(os.path.split(__file__)[0] + "/")
-    logger.info("Working dir: " + root_folder)
+    output_dir = get_cwd()
+    logger.info(f"Working dir: {output_dir}")
     logger.info("Loading parameters from config file")
     data_dir_list = cfg.paths.train_data
     nb_epoch = cfg.params.nb_epoch
@@ -61,8 +63,6 @@ def main(cfg):
 
     logger.info("Start Epochs ...")
     for epoch in range(nb_epoch):
-        logger.info("___________________________________________________________")
-
         loss_epoch = []
         dist_positive_epoch = []
         dist_negative_epoch = []
@@ -79,14 +79,10 @@ def main(cfg):
             output1 = model(inputs_var_batch).to(device)
             output = output1.view(output1.size(0), -1).cpu()
             dist_positive, dist_negative, loss = criterion(output)
-
-            loss_epoch.append(loss.item())
-            # writer.add_scalar('Loss', loss.item(),  epoch)
-            # TODO add comment to explain the line below
             if len(dist_positive) == 0 and len(dist_negative) == 0:
                 continue
 
-            # store some metric values
+            # save some metric values
             loss_epoch.append(loss.item())
             dist_positive_epoch.append(dist_positive[0].item())
             dist_negative_epoch.append(dist_negative[0].item())
@@ -97,16 +93,17 @@ def main(cfg):
             optimizer.step()
 
         loss_list.append(statistics.mean(loss_epoch))
+        mean_dist_positive = statistics.mean(dist_positive_epoch)
+        mean_dist_negative = statistics.mean(dist_negative_epoch)
 
-        logger.info(f"Epoch= {epoch}  Loss= {statistics.mean(loss_epoch):0.4f}")
-        logger.info(f"----> dist_positive: {statistics.mean(dist_positive_epoch):0.4f}")
-        logger.info(f"----> dist_negative: {statistics.mean(dist_negative_epoch):0.4f}")
-
+        logger.info(f"Epoch= {epoch:04d}  Loss= {statistics.mean(loss_epoch):0.4f}\
+        Mean-Dist-Pos: {mean_dist_positive:0.4f}\
+        Mean-Dist-Neg: {mean_dist_negative:0.4f}")
         writer.add_scalar("loss", statistics.mean(loss_epoch), epoch)
+
     logger.info(f"Save checkpoint to : {export_checkpoint_path}")
     checkpoint = {"epoch": epoch, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict(), "loss": loss}
     torch.save(checkpoint, os.path.join(os.getcwd(), export_checkpoint_path))
-
 
 if __name__ == "__main__":
     main()
