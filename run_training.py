@@ -32,7 +32,8 @@ def main(cfg):
     logger.info(cfg_pprint)
 
     output_dir = get_cwd()
-    logger.info(f"Working dir: {output_dir}")
+    logger.info(f"Working dir: {os.getcwd()}")
+    logger.info(f"Export dir: {output_dir}")
     logger.info("Loading parameters from config file")
     data_dir_list = cfg.paths.train_data
     nb_epoch = cfg.params.nb_epoch
@@ -40,7 +41,6 @@ def main(cfg):
     image_size = cfg.params.image_size
     initial_lr = cfg.params.lr
     margin_value = cfg.params.margin_value
-    export_checkpoint_path = f"{cfg.params.model}.pth"
 
     # gathers all epoch losses
     loss_list = []
@@ -101,9 +101,10 @@ def main(cfg):
         Mean-Dist-Neg: {mean_dist_negative:0.4f}")
         writer.add_scalar("loss", statistics.mean(loss_epoch), epoch)
 
-    logger.info(f"Save checkpoint to : {export_checkpoint_path}")
     checkpoint = {"epoch": epoch, "state_dict": model.state_dict(), "optimizer": optimizer.state_dict(), "loss": loss}
-    torch.save(checkpoint, os.path.join(os.getcwd(), export_checkpoint_path))
+    checkpoint_export_path = os.path.join(output_dir, f"{cfg.params.model}.pth")
+    torch.save(checkpoint, checkpoint_export_path)
+    logger.info(f"Checkpoint savec to: {checkpoint_export_path}")
 
 if __name__ == "__main__":
     main()
