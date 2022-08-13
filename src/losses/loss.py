@@ -1,14 +1,12 @@
 import torch
-from torch.autograd import Variable
-import torch.nn.functional as F
 import numpy as np
-import torch.nn.modules.distance as dist
-import math
-import matplotlib as plt
 
-# from Similarity_measures import mutual_info,SIFT_features
-# Inherit from Function
+
 class HardNnetLoss(torch.nn.Module):
+    """
+    from Similarity_measures import mutual_info,SIFT_features
+    """
+
     def __init__(self, anchorIds, positiveIds, negativeIds, lossweight=0.1, margin=0.2):
         torch.nn.Module.__init__(self)
         # print("anchorIds" ,anchorIds )
@@ -21,7 +19,9 @@ class HardNnetLoss(torch.nn.Module):
         self.margin = margin
         self.labelsMiniBatch = None
         self.sizeMiniBatch = len(anchorIds)
-        assert len(anchorIds) == len(positiveIds) and len(positiveIds) == len(negativeIds)
+        assert len(anchorIds) == len(positiveIds) and len(positiveIds) == len(
+            negativeIds
+        )
 
     def getWeight(self):
         return self.weight

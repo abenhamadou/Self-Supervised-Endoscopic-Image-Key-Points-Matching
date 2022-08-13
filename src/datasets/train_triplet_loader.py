@@ -1,6 +1,5 @@
 import torch
 import torch.utils.data as data
-from glob import glob
 import os.path as osp
 import glob
 import sys

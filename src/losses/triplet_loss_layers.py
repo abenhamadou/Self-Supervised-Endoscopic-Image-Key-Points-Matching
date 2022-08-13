@@ -2,9 +2,7 @@ import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
 import numpy as np
-import torch.nn.modules.distance as dist
-import math
-import matplotlib as plt
+
 
 LOSS_LAYER_IDS = ["HardNetLoss", "AdaptativeTripletLoss"]
 
@@ -39,7 +37,8 @@ class HardNetLoss(torch.nn.Module):
         self.sizeMiniBatch = len(self.anchor_ids)
 
         assert (
-            self.nb_anchor_samples == self.nb_positive_samples and self.nb_positive_samples == self.nb_negative_samples
+            self.nb_anchor_samples == self.nb_positive_samples
+            and self.nb_positive_samples == self.nb_negative_samples
         )
 
     def get_weight(self):
@@ -65,21 +64,15 @@ class HardNetLoss(torch.nn.Module):
         return batch_int
 
     def forward(self, input):
-        margin_factor = 3
-
-        Filter_loss = False
-
-        categorie = ["all", "easy", "semihard", "hard"]
-
-        triplet_categorie = categorie[0]
-        loss = Variable(torch.zeros(1))
-        zero = Variable(torch.zeros(1))
         anchors = input[self.anchor_ids, :].cuda()
         positives = input[self.positive_ids, :].cuda()
-        negatives = input[self.negative_ids, :].cuda()
 
         pos, min_neg, loss = loss_HardNet(
-            anchors, positives, margin=self.margin, batch_reduce="min", loss_type="triplet_margin"
+            anchors,
+            positives,
+            margin=self.margin,
+            batch_reduce="min",
+            loss_type="triplet_margin",
         )
         return pos, min_neg, loss
 
@@ -95,16 +88,24 @@ def distance_matrix_vector(anchor, positive):
         (
             d1_sq.repeat(1, positive.size(0))
             + torch.t(d2_sq.repeat(1, anchor.size(0)))
-            - 2.0 * torch.bmm(anchor.unsqueeze(0), torch.t(positive).unsqueeze(0)).squeeze(0)
+            - 2.0
+            * torch.bmm(anchor.unsqueeze(0), torch.t(positive).unsqueeze(0)).squeeze(0)
         )
         + eps
     ).cuda()
 
 
-def loss_HardNet(anchor, positive, margin=1.0, batch_reduce="min", loss_type="triplet_margin"):
-    """HardNet margin loss - calculates loss based on distance matrix based on positive distance and closest negative distance."""
+def loss_HardNet(
+    anchor, positive, margin=1.0, batch_reduce="min", loss_type="triplet_margin"
+):
+    """
+    HardNet margin loss - calculates loss based on distance matrix
+    based on positive distance and closest negative distance.
+    """
 
-    assert anchor.size() == positive.size(), "Input sizes between positive and negative must be equal."
+    assert (
+        anchor.size() == positive.size()
+    ), "Input sizes between positive and negative must be equal."
     assert anchor.dim() == 2, "Input must be a 2D matrix."
     eps = 1e-8
     dist_matrix = distance_matrix_vector(anchor, positive) + eps
@@ -152,7 +153,6 @@ def dist_triplet(self, input):
         out = torch.pow(diff, norm).sum(dim=1)
         return torch.pow(out + eps, 1.0 / norm)
 
-    norm = 2
     anchors = input[self.anchorIds, :]
     positives = input[self.positiveIds, :]
     negatives = input[self.negativeIds, :]
@@ -177,7 +177,9 @@ class AdaptativeTripletLoss(torch.nn.Module):
         self.margin = margin
         self.labelsMiniBatch = None
         self.sizeMiniBatch = len(anchorIds)
-        assert len(anchorIds) == len(positiveIds) and len(positiveIds) == len(negativeIds)
+        assert len(anchorIds) == len(positiveIds) and len(positiveIds) == len(
+            negativeIds
+        )
 
     def getWeight(self):
         return self.weight
@@ -203,23 +205,24 @@ class AdaptativeTripletLoss(torch.nn.Module):
 
     def forward(self, input):
         margin_factor = 1
-        Filter_loss = False
-        categorie = ["all", "easy", "semihard", "hard"]
-        triplet_categorie = categorie[0]
+        filter_loss = False
+        categories = ["all", "easy", "semihard", "hard"]
+        triplet_categorie = categories[0]
         loss = Variable(torch.zeros(1))
         zero = Variable(torch.zeros(1))
         anchors = input[self.anchorIds, :]
         positives = input[self.positiveIds, :]
         negatives = input[self.negativeIds, :]
-        #####################################################################################################################"""
+
         d_p = F.pairwise_distance(anchors, positives, 2)
         d_n = F.pairwise_distance(anchors, negatives, 2)
-        d_aa = F.pairwise_distance(anchors, anchors, 2)
-        d_pp = F.pairwise_distance(positives, positives, 2)
+
         self.margin = margin_factor * d_p
         self.margin = abs(d_p + d_n) / 2
         easy_samples = (d_p + self.margin < d_n).cpu().data.numpy().flatten()
-        semihard_samples = ((d_p < d_n) & (d_n < d_p + self.margin)).cpu().data.numpy().flatten()
+        semihard_samples = (
+            ((d_p < d_n) & (d_n < d_p + self.margin)).cpu().data.numpy().flatten()
+        )
         hard_samples = (d_p > d_n).cpu().data.numpy().flatten()
         if triplet_categorie == "all":
             all = (d_p == d_p).cpu().data.numpy().flatten()
@@ -234,44 +237,41 @@ class AdaptativeTripletLoss(torch.nn.Module):
         if triplet_categorie == "hard":
             #  Hard Triplet d_n<d_p
             all = hard_samples
-        per_hard = len((np.where(hard_samples == 1))[0]) / len(all)
-        per_semihard = len((np.where(semihard_samples == 1))[0]) / len(all)
-        per_easy = len((np.where(easy_samples == 1))[0]) / len(all)
-        sample_partition = [per_easy, per_semihard, per_hard]
+
         selected_triplets_ind = np.where(all == 1)
         if len(selected_triplets_ind[0]) == 0:
             return 0, [], []
         else:
             occ_selected_triplet = len(selected_triplets_ind[0])
-        ## Selected Triplet Data , output and labels..
+
+        # Selected Triplet Data , output and labels..
         all_a = anchors[selected_triplets_ind, :]
         all_p = positives[selected_triplets_ind, :]
         all_n = negatives[selected_triplets_ind, :]
         aa = all_a.view(occ_selected_triplet, -1)
         pp = all_p.view(occ_selected_triplet, -1)
         nn = all_n.view(occ_selected_triplet, -1)
-        #########################################################################################################################
+
         dist_p = F.pairwise_distance(aa, pp, 2)
         dist_n = F.pairwise_distance(aa, nn, 2)
-        d_aa = F.pairwise_distance(aa, aa, 2)
-        d_pp = F.pairwise_distance(pp, pp, 2)
+
         # change margin
         self.margin = abs(dist_p + dist_n) / 2
 
         if triplet_categorie == "easy":
             loss2 = torch.max(zero, (dist_n - self.margin) - dist_p)  # +(d_aa-d_pp)
         else:
-            loss2 = torch.max(zero, dist_p + self.margin - dist_n)  # +(d_aa-d_pp) # + 0.00001 * loss_embedd
+            loss2 = torch.max(
+                zero, dist_p + self.margin - dist_n
+            )  # +(d_aa-d_pp) # + 0.00001 * loss_embedd
 
         # Filter Valid loss!=0
-        if Filter_loss == True:
+        if filter_loss:
             all = (loss2 != 0).cpu().data.numpy().flatten()
             valid_loss = np.where(all == 1)[0]
             valid_losses = [loss2[u] for u in valid_loss]
             loss = np.mean(valid_losses)
         else:
             loss = torch.mean(loss2)
-
-        ###################################################################################################################################""""""
 
         return dist_p, dist_n, loss

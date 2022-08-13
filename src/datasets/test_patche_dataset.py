@@ -17,12 +17,12 @@ class PatchDataset(Dataset):
         self.keypoints_GT = []
         self.root_path = root_path
         self.patch_size = patch_size
-        self.sequence_list = glob.glob(root_path+"/*")
+        self.sequence_list = glob.glob(root_path + "/*")
         self.all_frames_per_sequence = []
         self.all_keypoints = []
 
         for seq in self.sequence_list:
-            self.all_frames_per_sequence.append(glob.glob(seq+"/frames/*"))
+            self.all_frames_per_sequence.append(glob.glob(seq + "/frames/*"))
 
         # get list of key-points corresponding to the list of frames
         for frames in self.all_frames_per_sequence:
@@ -51,8 +51,7 @@ class PatchDataset(Dataset):
         frame_src = self.enhance(frame_src)
         Next_frame = self.enhance(Next_frame)
 
-
-        # -------------------------------------------------------GT_keypoints------------------------------------------------------------------
+        # GT_keypoints filenames
         GT_keypoint_src = self.Path_test + "/keypoints_GT/GT_kaypoint1_%i.txt" % (idx + 1)
         GT_keypoint_Next_frame = self.Path_test + "/keypoints_GT/GT_kaypoint2_%i.txt" % (idx + 1)
 
