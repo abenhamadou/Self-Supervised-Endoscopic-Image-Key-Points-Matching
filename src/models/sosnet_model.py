@@ -66,7 +66,15 @@ class SOSNet(nn.Module):
         return
 
     def forward(self, x):
-        for layer in [self.layer1, self.layer2, self.layer3, self.layer4, self.layer5, self.layer6, self.layer7]:
+        for layer in [
+            self.layer1,
+            self.layer2,
+            self.layer3,
+            self.layer4,
+            self.layer5,
+            self.layer6,
+            self.layer7,
+        ]:
             x = layer(x)
 
         return desc_l2norm(x.squeeze())
