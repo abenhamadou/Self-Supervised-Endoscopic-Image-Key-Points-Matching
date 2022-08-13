@@ -7,6 +7,7 @@ from .sosnet_model import SOSNet
 
 ACCEPTED_MODEL_NAMES = ["HyNet", "SOSNet", "HardNet128"]
 
+
 def model_factory(model_name, model_weights_path):
     assert model_name in ACCEPTED_MODEL_NAMES
     assert osp.exists(model_weights_path)
@@ -24,4 +25,3 @@ def model_factory(model_name, model_weights_path):
     else:
         raise
     return model
-

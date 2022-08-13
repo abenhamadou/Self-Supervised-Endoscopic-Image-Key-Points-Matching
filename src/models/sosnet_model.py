@@ -1,14 +1,14 @@
 import torch.nn as nn
-import torch
 
-eps_l2_norm = 1e-10
+EPS_L2_NORM = 1e-10
 
 
 def desc_l2norm(desc):
     """descriptors with shape NxC or NxCxHxW"""
     desc = desc.view(1, 128)
-    desc = desc / desc.pow(2).sum(dim=1, keepdim=True).add(eps_l2_norm).pow(0.5)
+    desc = desc / desc.pow(2).sum(dim=1, keepdim=True).add(EPS_L2_NORM).pow(0.5)
     return desc
+
 
 class SOSNet(nn.Module):
     """SOSNet model definition"""

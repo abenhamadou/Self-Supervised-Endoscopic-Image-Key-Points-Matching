@@ -1,12 +1,7 @@
 import torch
-import torch.utils.data as data
-import os
 from scipy.spatial import distance
 import numpy as np
 from math import sqrt
-
-# import localTransformations as transforms
-import sys
 
 
 def evaluate_matches(gt_keypoint_src, gt_keypoint_dst, matches, distance_matching_threshold):
@@ -35,9 +30,7 @@ def feature_extraction(patches, model, imageSize):
     for (idx, data) in enumerate(inputs1_tensors):
 
         inputs = data
-
         input_var = torch.autograd.Variable(inputs)
-
         input_var = input_var.view(1, imageSize, imageSize)
 
         if not (list(input_var.size())[0] == 1):

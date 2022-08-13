@@ -1,9 +1,6 @@
 import torch.nn as nn
 import torch
 
-eps_fea_norm = 1e-5
-eps_l2_norm = 1e-10
-
 
 class HardNet128(nn.Module):
     """

@@ -23,6 +23,7 @@ logger.setLevel(logging.INFO)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 warnings.filterwarnings("ignore")
 
+
 @hydra.main(version_base=None, config_path="config", config_name="config_train")
 def main(cfg):
 
@@ -41,6 +42,7 @@ def main(cfg):
     image_size = cfg.params.image_size
     initial_lr = cfg.params.lr
     margin_value = cfg.params.margin_value
+    loss_weight = cfg.params.loss_weight
 
     # gathers all epoch losses
     loss_list = []
@@ -53,12 +55,15 @@ def main(cfg):
     criterion = loss_factory(
         cfg.params.loss_layer,
         batch_size=batch_size,
-        margin_value=cfg.params.margin_value,
-        loss_weight=cfg.params.loss_weight,
+        margin_value=margin_value,
+        loss_weight=loss_weight,
     )
 
     optimizer = optim.SGD(
-        model.parameters(), lr=initial_lr, momentum=cfg.params.momentum, weight_decay=cfg.params.weight_decay
+        model.parameters(),
+        lr=initial_lr,
+        momentum=cfg.params.momentum,
+        weight_decay=cfg.params.weight_decay
     )
 
     logger.info("Start Epochs ...")
@@ -105,6 +110,7 @@ def main(cfg):
     checkpoint_export_path = os.path.join(output_dir, f"{cfg.params.model}.pth")
     torch.save(checkpoint, checkpoint_export_path)
     logger.info(f"Checkpoint savec to: {checkpoint_export_path}")
+
 
 if __name__ == "__main__":
     main()
