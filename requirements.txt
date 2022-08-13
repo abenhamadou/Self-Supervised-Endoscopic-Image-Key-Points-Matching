@@ -1,6 +1,6 @@
 hydra-core==1.2.0
 pre-commit==2.14.1
-black==21.8b0
+black==22.6.0
 flake8==3.8.4
 python-json-logger==2.0.2
 opencv-contrib-python==4.5.4.58
