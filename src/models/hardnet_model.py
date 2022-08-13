@@ -55,13 +55,14 @@ class HardNet128(nn.Module):
 
     @staticmethod
     def weights_init(m):
-        if isinstance(m, nn.Conv2d):
-            nn.init.orthogonal(m.weight.data, gain=0.6)
-            try:
-                nn.init.constant(m.bias.data, 0.01)
-            except Exception as e:
-                print(str(e))
-                pass
+        try:
+            if isinstance(m, nn.Conv2d):
+                nn.init.orthogonal(m.weight.data, gain=0.6)
+                if m.bias:
+                    nn.init.constant(m.bias.data, 0.01)
+        except Exception as e:
+            print(str(e))
+            pass
         return
 
 
