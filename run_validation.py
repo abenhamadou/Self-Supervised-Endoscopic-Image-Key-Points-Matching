@@ -18,7 +18,7 @@ import torch
 import statistics
 
 from src.utils.matcher import feature_match, feature_extraction, evaluate_matches
-from src.datasets.test_patche_dataset import PatchDataset
+from src.datasets.test_patch_loader import PatchDataset
 from src.models.arch_factory import model_factory
 
 @hydra.main(version_base=None, config_path="config", config_name="config_evaluation")
