@@ -58,9 +58,6 @@ Now activate the virtual environment by running:
 
 
 ## Docker build
-- To push the docker image on servers automatically:
-> **`PREPROD`**: a simple commit on GitHub will create and push the docker image to our PREPROD servers
->
-> **`PROD`**: by tagging the latest commit and push it, the docker image will be directly pushed to PROD servers: run this command **`git pull && git tag -f prod && git push && git push -f --tag`**
+- [comming soon]
 
 ## Known issues
