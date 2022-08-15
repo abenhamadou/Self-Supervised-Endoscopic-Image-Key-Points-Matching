@@ -22,7 +22,8 @@ RUN apt-get install -y --fix-missing \
         libreadline-dev \
         libffi-dev \
         libsqlite3-dev \
-        libbz2-dev
+        libbz2-dev \
+        liblzma-dev
 
 RUN set -eux; \
     wget "$PYTHON_DOWNLOAD_URL"; \
