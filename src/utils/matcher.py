@@ -5,7 +5,9 @@ from math import sqrt
 
 
 def evaluate_matches(gt_keypoint_src, gt_keypoint_dst, matches, distance_matching_threshold):
-    nb_false_matching, nb_true_matches, nb_rejected_matches = 0
+    nb_false_matching = 0
+    nb_true_matches = 0
+    nb_rejected_matches = 0
 
     for j in range(0, len(gt_keypoint_src)):
         xp = int(gt_keypoint_dst[j][0])

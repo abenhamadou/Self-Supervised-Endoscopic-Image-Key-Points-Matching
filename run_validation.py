@@ -4,7 +4,7 @@ from _version import __version__
 import hydra
 import json
 from omegaconf import OmegaConf
-
+import tqdm
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
@@ -51,7 +51,8 @@ def main(cfg):
     matching_score = []
 
     # go through the patches, frame by frame
-    for i, data in enumerate(test_dataset):
+    # for i, data in enumerate(test_dataset):
+    for i, data in enumerate(tqdm.tqdm(test_dataset)):
 
         patch_src = data["patch_src"]
         patch_dst = data["patch_dst"]

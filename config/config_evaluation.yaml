@@ -1,6 +1,6 @@
 paths:
     log: "runs"
-    validation_data: "/home/achraf/workspace/crns/gitprojects/optimendoscopy/data/testing_dataset/frame_sequences"
+    validation_data: "/home/achraf/workspace/crns/gitprojects/Self-Supervised-Endoscopic-Image-Key-Points-Matching/data/test_dataset"
 params:
         model_name: "HardNet128"
         weights_path: "/home/achraf/workspace/crns/gitprojects/optimendoscopy/models/HardNet128.pth"
