@@ -3,12 +3,13 @@
 # Welcome the official implementation of "Self-Supervised Endoscopic Image Key-Points Matching"
 
 # Pre-trained models 
-Pre-trained models can be downloaded following the link
-https://drive.google.com/drive/folders/1T_DxBmLh7JP-EcUOndiToSdZr6kdoB7m
-
+Pre-trained models can be downloaded following the link. You may save the models to ./models folder
+- https://drive.google.com/drive/folders/1T_DxBmLh7JP-EcUOndiToSdZr6kdoB7m
 # Training and testing datasets for endoscopic images matching
-TODO link
+- https://drive.google.com/drive/folders/1b9oayHcVPVhLcVOMQTWbIKQVlRv7CBgh
 
+unzip the two zip files in the ./data folder and then update your configuration yaml files accordingly (see blow)
+  
 # Runners and configurations files
 - "**run_trainning.py**", configuration yaml file in "**config/config_train.yaml**"
 - "**run_validation.py**", configuration yaml file in "**config/config_validation.yaml**"
