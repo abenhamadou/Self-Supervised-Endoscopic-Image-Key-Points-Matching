@@ -1,6 +1,6 @@
 paths:
     log: "runs"
-    train_data: "/media/achraf/data/workspace/crns/optimendoscopy/training_dataset/base_train2"
+    train_data: "./data/base_train2"
 params:
         model: "HardNet128"
         loss_layer: "HardNetLoss"
