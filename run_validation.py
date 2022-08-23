@@ -21,6 +21,7 @@ from src.utils.matcher import feature_match, feature_extraction, evaluate_matche
 from src.datasets.test_patch_loader import PatchDataset
 from src.models.arch_factory import model_factory
 
+
 @hydra.main(version_base=None, config_path="config", config_name="config_evaluation")
 def main(cfg):
     logger.info("Version: " + __version__)
@@ -64,14 +65,32 @@ def main(cfg):
         list_desc_dst = feature_extraction(patch_dst, model, image_size)
 
         # do matching
-        matches, _ = feature_match(list_desc_src, list_desc_dst, matching_threshold)
+        matches, distance_list = feature_match(
+            list_desc_src, list_desc_dst, matching_threshold
+        )
 
         # compute evaluation metrics
         nb_false_matching, nb_true_matches, nb_rejected_matches = evaluate_matches(
-            gt_keypoint_src, gt_keypoint_dst, matches, distance_matching_threshold
+            gt_keypoint_src,
+            gt_keypoint_dst,
+            matches,
+            distance_matching_threshold,
+            distance_list,
+            matching_threshold,
         )
+
+        # # do matching
+        # matches, _ = feature_match(list_desc_src, list_desc_dst, matching_threshold)
+        #
+        # # compute evaluation metrics
+        # nb_false_matching, nb_true_matches, nb_rejected_matches = evaluate_matches(
+        #     gt_keypoint_src, gt_keypoint_dst, matches, distance_matching_threshold
+        # )
         precision.append(nb_true_matches / (nb_false_matching + nb_true_matches))
-        matching_score.append(nb_true_matches / (nb_false_matching + nb_true_matches + nb_rejected_matches))
+        matching_score.append(
+            nb_true_matches
+            / (nb_false_matching + nb_true_matches + nb_rejected_matches)
+        )
 
     logger.info(f"Precision= {statistics.mean(precision):0.4f}")
     logger.info(f"Matching_score= {statistics.mean(matching_score):0.4f}")

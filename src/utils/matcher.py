@@ -4,7 +4,14 @@ import numpy as np
 from math import sqrt
 
 
-def evaluate_matches(gt_keypoint_src, gt_keypoint_dst, matches, distance_matching_threshold):
+def evaluate_matches(
+    gt_keypoint_src,
+    gt_keypoint_dst,
+    matches,
+    distance_matching_threshold,
+    distance_list,
+    matching_threshold,
+):
     nb_false_matching = 0
     nb_true_matches = 0
     nb_rejected_matches = 0
@@ -15,7 +22,7 @@ def evaluate_matches(gt_keypoint_src, gt_keypoint_dst, matches, distance_matchin
         xp2 = int(gt_keypoint_dst[matches[j]][0])
         yp2 = int(gt_keypoint_dst[matches[j]][1])
         dist = sqrt((yp - yp2) ** 2 + (xp - xp2) ** 2)
-        if matches[j] == -1:
+        if distance_list[j] > matching_threshold:
             nb_rejected_matches += 1
         elif dist <= distance_matching_threshold:
             nb_true_matches += 1
@@ -58,10 +65,6 @@ def feature_match(feature_vectors_1, feature_vectors_2, matching_threshold):
             distance_sim.append(sim)
         candidate_index = np.argsort(distance_sim)[:2]
         distance_list.extend([distance_sim[candidate_index[0]]])
-        if distance_sim[candidate_index[0]] > matching_threshold:
-            # set -1 if no match found for the current vector
-            matched_idx.append(-1)
-        else:
-            matched_idx.extend([candidate_index[0]])
+        matched_idx.extend([candidate_index[0]])
 
     return matched_idx, distance_list

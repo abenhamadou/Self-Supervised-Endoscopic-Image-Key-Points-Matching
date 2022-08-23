@@ -12,3 +12,5 @@ tensorboard==2.9.1
 natsort==7.1.1
 tqdm==4.64.0
 scipy==1.8.1
+imageio==2.21.1
+pygifsicle 1.0.5

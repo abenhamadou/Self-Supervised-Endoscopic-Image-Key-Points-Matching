@@ -1,111 +1,132 @@
 import os
 import logging
+
+import cv2.cv2
+
 from _version import __version__
 import hydra
 import json
 from omegaconf import OmegaConf
+from tqdm import tqdm
 
-import statistics
+import imageio
+
 import torch
-import torch.optim as optim
-import numpy as np
 from torch.utils.tensorboard import SummaryWriter
-
-from src.model import HardNet128
-from src.triplet_loader import TripletDataset
-from src.triplet_loss_layers import HardNetLoss, loss_factory
-
+from src.utils.path import get_cwd
+import numpy as np
+import cv2 as cv
+from math import sqrt
 
 writer = SummaryWriter()
-logger = logging.getLogger("Training")
+logger = logging.getLogger("Demo_matching")
 logger.setLevel(logging.INFO)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-@hydra.main(version_base=None, config_path="config", config_name="config_train")
+import torch
+import statistics
+
+from src.utils.matcher import feature_match, feature_extraction, evaluate_matches
+from src.datasets.test_patch_loader import PatchDataset
+from src.models.arch_factory import model_factory
+
+
+def export_gif(frame_path_list, out_gif_filename, fps=24):
+    frame_list = []
+    for frame_path in tqdm(frame_path_list):
+        frame_list.append(cv2.imread(frame_path))
+        # os.remove(frame_path)
+    imageio.mimsave(out_gif_filename, frame_list, fps=fps)
+
+
+@hydra.main(version_base=None, config_path="config", config_name="config_matching_demo")
 def main(cfg):
     logger.info("Version: " + __version__)
     dict_cfg = OmegaConf.to_container(cfg)
     cfg_pprint = json.dumps(dict_cfg, indent=4)
     logger.info(cfg_pprint)
 
-    root_folder = os.path.abspath(os.path.split(__file__)[0] + "/")
-    logger.info("Working dir: " + root_folder)
+    output_dir = get_cwd()
+    logger.info(f"Working dir: {os.getcwd()}")
+    logger.info(f"Export dir: {output_dir}")
+
     logger.info("Loading parameters from config file")
-    data_dir_list = cfg.paths.train_data
-    nb_epoch = cfg.params.nb_epoch
-    batch_size = cfg.params.batch_size
+    validation_data_root = cfg.paths.demo_sequence_data
+    model_name = cfg.params.model_name
+    model_weights_path = cfg.params.weights_path
     image_size = cfg.params.image_size
-    initial_lr = cfg.params.lr
-    margin_value = cfg.params.margin_value
-    export_checkpoint_path = f"{cfg.params.model}.pth"
+    patch_size = cfg.params.patch_size
+    distance_matching_threshold = cfg.params.distance_matching_threshold
+    matching_threshold = cfg.params.matching_threshold
 
-    # gathers all epoch losses
-    loss_list = []
+    # load the model to be evaluated
+    model = model_factory(model_name, model_weights_path)
 
-    # creates dataset and datalaoder
-    dataset = TripletDataset(data_dir_list, image_size)
-    train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, pin_memory=True)
-    model = HardNet128()
+    # generate patches from video frames
+    # generate testing data
+    test_dataset = PatchDataset(validation_data_root, patch_size)
 
-    criterion = loss_factory(
-        cfg.params.loss_layer,
-        batch_size=batch_size,
-        margin_value=cfg.params.margin_value,
-        loss_weight=cfg.params.loss_weight,
+    # list to store output git frames
+    frame_path_list = []
+
+    # go through the patches, frame by frame
+    for id, data in enumerate(tqdm(test_dataset)):
+
+        patch_src = data["patch_src"]
+        patch_dst = data["patch_dst"]
+        keypoint_src = data["keypoint_src"]
+        keypoint_dst = data["keypoint_dst"]
+        frame_src = data["image_src_name"]
+        Next_frame = data["image_dst_name"]
+        # extract feature vector for all patches
+        list_desc_src = feature_extraction(patch_src, model, image_size)
+        list_desc_dst = feature_extraction(patch_dst, model, image_size)
+
+        # do matching
+        matches, distance_list = feature_match(
+            list_desc_src, list_desc_dst, matching_threshold
+        )
+
+        h, w = frame_src.shape
+
+        # -------------------------------------------------------------------------------------------------
+        image_match = np.concatenate((frame_src, Next_frame), axis=1)
+        image_match_rgb = cv.cvtColor(image_match, cv.COLOR_GRAY2BGR)
+
+        for i in range(0, len(keypoint_src)):
+
+            # if matches[i] != -1:
+            xa = int(keypoint_src[i][0])
+            ya = int(keypoint_src[i][1])
+            xp = int(keypoint_dst[i][0])
+            yp = int(keypoint_dst[i][1])
+            x = int(keypoint_dst[matches[i]][0])
+            y = int(keypoint_dst[matches[i]][1])
+            dist = sqrt((yp - y) ** 2 + (xp - x) ** 2)
+
+            cv.circle(
+                image_match_rgb, (xa, ya), radius=2, color=(255, 0, 0), thickness=2
+            )
+            cv.circle(
+                image_match_rgb, (xp + w, yp), radius=2, color=(255, 0, 0), thickness=2
+            )
+            if dist > distance_matching_threshold:
+                cv.line(image_match_rgb, (xa, ya), (x + w, y), (0, 0, 255), thickness=1)
+            else:
+                cv.line(image_match_rgb, (xa, ya), (x + w, y), (0, 255, 0), thickness=1)
+
+        file_name = os.path.join(output_dir, f"matches{id}_{id + 1}.png")
+        frame_path_list.append(file_name)
+        cv.imwrite(file_name, cv2.resize(image_match_rgb, (0, 0), fx=0.6, fy=0.6))
+
+        # break
+
+    logger.info("Start exporting demo GIF")
+    export_git_filename = os.path.join(output_dir, "matching_demo.gif")
+    export_gif(
+        frame_path_list=frame_path_list, out_gif_filename=export_git_filename, fps=20
     )
-
-    optimizer = optim.SGD(
-        model.parameters(), lr=initial_lr, momentum=cfg.params.momentum, weight_decay=cfg.params.weight_decay
-    )
-
-    logger.info("Start Epochs ...")
-    for epoch in range(nb_epoch):
-        logger.info("___________________________________________________________")
-
-        loss_epoch = []
-        dist_positive_epoch = []
-        dist_negative_epoch = []
-
-        for (idx, data) in enumerate(train_loader):
-            _, inputs = data
-            input_var = torch.autograd.Variable(inputs)
-            if not (list(input_var.size())[0] == batch_size):
-                continue
-
-            inputs_var_batch = input_var.view(batch_size * 3, 1, image_size, image_size)
-
-            # computed output
-            output1 = model(inputs_var_batch).to(device)
-            output = output1.view(output1.size(0), -1).cpu()
-            dist_positive, dist_negative, loss = criterion(output)
-
-            loss_epoch.append(loss.item())
-            # writer.add_scalar('Loss', loss.item(),  epoch)
-            # TODO add comment to explain the line below
-            if len(dist_positive) == 0 and len(dist_negative) == 0:
-                continue
-
-            # store some metric values
-            loss_epoch.append(loss.item())
-            dist_positive_epoch.append(dist_positive[0].item())
-            dist_negative_epoch.append(dist_negative[0].item())
-
-            # compute gradient and do SGD step
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-
-        loss_list.append(statistics.mean(loss_epoch))
-
-        logger.info(f"Epoch= {epoch}  Loss= {statistics.mean(loss_epoch):0.4f}")
-        logger.info(f"----> dist_positive: {statistics.mean(dist_positive_epoch):0.4f}")
-        logger.info(f"----> dist_negative: {statistics.mean(dist_negative_epoch):0.4f}")
-
-        writer.add_scalar("loss", statistics.mean(loss_epoch), epoch)
-        logger.info(f"Save checkpoint to : {export_checkpoint_path}")
-    checkpoint = {"state_dict": model.state_dict(), "model": HardNet128(), "optimizer": optimizer.state_dict()}
-    torch.save(checkpoint, export_checkpoint_path)
 
 
 if __name__ == "__main__":
