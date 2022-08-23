@@ -2,6 +2,10 @@
 
 # Welcome the official implementation of "Self-Supervised Endoscopic Image Key-Points Matching"
 
+
+ ![demo_vid](assets/matching_demo.gif)
+
+
 # Pre-trained models 
 Pre-trained models can be downloaded following the link. You may save the models to ./models folder
 - https://drive.google.com/drive/folders/1T_DxBmLh7JP-EcUOndiToSdZr6kdoB7m
