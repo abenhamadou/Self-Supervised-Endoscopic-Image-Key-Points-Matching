@@ -4,7 +4,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2208.11424-b31b1b.svg)](https://arxiv.org/abs/2208.11424) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <pre>
 @article{ref,
-    author = {Nesrine Grati and Houda Chaabouni{-}Chouayakh and Achraf Ben{-}Hamadou}, 
+    author = {Manel Farhat and Houda Chaabouni{-}Chouayakh and Achraf Ben{-}Hamadou}, 
     title = {Self-Supervised Endoscopic Image Key-Points Matching}, 
     journal = {Elsevier Expert Syst. Appl.},
     year = {2022 Inpress}
