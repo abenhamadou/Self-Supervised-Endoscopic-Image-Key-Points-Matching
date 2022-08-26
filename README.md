@@ -5,8 +5,8 @@
 <pre>
 @article{ref,
     author = {Nesrine Grati and Houda Chaabouni{-}Chouayakh and Achraf Ben{-}Hamadou}, 
-    title  = {Self-Supervised Endoscopic Image Key-Points Matching}, 
-    journal = {Expert Syst. Appl.}, 
+    title = {Self-Supervised Endoscopic Image Key-Points Matching}, 
+    journal = {Elsevier Expert Syst. Appl.},
     year = {2022 Inpress}
 }
 </pre>
