@@ -1,11 +1,16 @@
 <img src="http://www.crns.rnrt.tn/front/img/logo.svg">
 
 # Welcome the official implementation of "Self-Supervised Endoscopic Image Key-Points Matching"
-
-
+[![arXiv](https://img.shields.io/badge/arXiv-2208.11424-b31b1b.svg)](https://arxiv.org/abs/2208.11424) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<pre>
+@article{ref,
+    author = {Nesrine Grati and Houda Chaabouni{-}Chouayakh and Achraf Ben{-}Hamadou}, 
+    title  = {Self-Supervised Endoscopic Image Key-Points Matching}, 
+    journal = {Expert Syst. Appl.}, 
+    year = {2022 Inpress}
+}
+</pre>
  ![demo_vid](assets/matching_demo.gif)
-
-
 # Pre-trained models 
 Pre-trained models can be downloaded following the link. You may save the models to ./models folder
 - https://drive.google.com/drive/folders/1T_DxBmLh7JP-EcUOndiToSdZr6kdoB7m
