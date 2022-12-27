@@ -3,22 +3,20 @@
 # Welcome to the official implementation of "Self-Supervised Endoscopic Image Key-Points Matching"
 [![arXiv](https://img.shields.io/badge/arXiv-2208.11424-b31b1b.svg)](https://arxiv.org/abs/2208.11424) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <pre>
-@article{farhat2023self,
-    title={Self-supervised endoscopic image key-points matching},
-    author={Farhat, Manel and Chaabouni-Chouayakh, Houda and Ben-Hamadou, Achraf},
-    journal={Expert Systems with Applications},
-    volume={213},
-    pages={118696},
-    year={2023},
-    publisher={Elsevier}
+@article{ref,
+    author = {Manel Farhat and Houda Chaabouni{-}Chouayakh and Achraf Ben{-}Hamadou}, 
+    title = {Self-Supervised Endoscopic Image Key-Points Matching}, 
+    journal = {Elsevier Expert Syst. Appl.},
+    year = {2022 Inpress}
 }
 </pre>
- ![demo_vid](assets/matching_demo.gif)
+
+![demo_vid](assets/matching_demo.gif)
 # Pre-trained models 
 Pre-trained models can be downloaded following the link. You may save the models to ./models folder
-- https://drive.google.com/drive/folders/1T_DxBmLh7JP-EcUOndiToSdZr6kdoB7m
+- https://bit.ly/3YSArUk
 # Training and testing datasets for endoscopic images matching
-- https://drive.google.com/drive/folders/1b9oayHcVPVhLcVOMQTWbIKQVlRv7CBgh
+- https://bit.ly/3WsZhs6
 
 unzip the two zip files in the ./data folder and then update your configuration yaml files accordingly (see blow)
   
