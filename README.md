@@ -3,11 +3,14 @@
 # Welcome to the official implementation of "Self-Supervised Endoscopic Image Key-Points Matching"
 [![arXiv](https://img.shields.io/badge/arXiv-2208.11424-b31b1b.svg)](https://arxiv.org/abs/2208.11424) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <pre>
-@article{ref,
-    author = {Manel Farhat and Houda Chaabouni{-}Chouayakh and Achraf Ben{-}Hamadou}, 
-    title = {Self-Supervised Endoscopic Image Key-Points Matching}, 
-    journal = {Elsevier Expert Syst. Appl.},
-    year = {2022 Inpress}
+@article{farhat2023self,
+    title={Self-supervised endoscopic image key-points matching},
+    author={Farhat, Manel and Chaabouni-Chouayakh, Houda and Ben-Hamadou, Achraf},
+    journal={Expert Systems with Applications},
+    volume={213},
+    pages={118696},
+    year={2023},
+    publisher={Elsevier}
 }
 </pre>
  ![demo_vid](assets/matching_demo.gif)
